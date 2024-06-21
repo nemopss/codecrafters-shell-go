@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"log"
 	// Uncomment this block to pass the first stage
 	"fmt"
 	"os"
@@ -12,7 +13,10 @@ func main() {
 	fmt.Fprint(os.Stdout, "$ ")
 
 	// Wait for user input
-	input, _ := bufio.NewReader(os.Stdin).ReadString('\n')
+	input, err := bufio.NewReader(os.Stdin).ReadString('\n')
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	fmt.Fprint(os.Stdout, input[:len(input)-1]+": command not found\n")
 }
