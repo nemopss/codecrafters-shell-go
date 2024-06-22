@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"path/filepath"
 	"slices"
 	"strconv"
 	"strings"
@@ -11,34 +12,58 @@ import (
 
 func main() {
 	valid := []string{"type", "echo", "exit"}
+	paths := strings.Split(os.Getenv("PATH"), ":")
 	for {
 		fmt.Fprint(os.Stdout, "$ ")
 
 		// Wait for user input
-		cmd, err := bufio.NewReader(os.Stdin).ReadString('\n')
+		input, err := bufio.NewReader(os.Stdin).ReadString('\n')
 		if err != nil {
 			panic(err)
 		}
-		cmd = strings.TrimSpace(cmd)
-		mainCmd := strings.Split(cmd, " ")[0]
-		args := strings.Split(cmd, " ")[1:]
-		switch mainCmd {
+
+		input = strings.TrimRight(input, "\n")
+		tokenizedInput := strings.Split(input, " ")
+		cmd := tokenizedInput[0]
+		params := tokenizedInput[1:]
+		switch cmd {
 		case "exit":
-			code, err := strconv.Atoi(args[0])
-			if err != nil {
-				os.Exit(1)
-			}
-			os.Exit(code)
+			doExit(params)
 		case "echo":
-			fmt.Fprint(os.Stdout, strings.Join(args, " ")+"\n")
+			doEcho(params)
 		case "type":
-			if slices.Contains(valid, args[0]) {
-				fmt.Fprint(os.Stdout, args[0]+" is a shell builtin\n")
-			} else {
-				fmt.Fprint(os.Stdout, args[0]+": not found\n")
-			}
+			doType(params, valid, paths)
 		default:
 			fmt.Fprint(os.Stdout, cmd+": command not found\n")
 		}
+	}
+
+}
+
+func doExit(params []string) {
+	code, err := strconv.Atoi(params[0])
+	if err != nil || len(params) != 1 {
+		os.Exit(1)
+	}
+	os.Exit(code)
+}
+
+func doEcho(params []string) {
+	fmt.Fprint(os.Stdout, strings.Join(params, " ")+"\n")
+}
+
+func doType(params, valid, paths []string) {
+	if slices.Contains(valid, params[0]) {
+		fmt.Fprint(os.Stdout, params[0]+" is a shell builtin\n")
+	} else {
+		for _, path := range paths {
+			fp := filepath.Join(path, params[0])
+			if _, err := os.Stat(fp); err == nil {
+				fmt.Fprint(os.Stdout, params[0]+" is "+fp+"\n")
+				return
+			}
+		}
+		fmt.Fprint(os.Stdout, params[0]+": not found\n")
+
 	}
 }
