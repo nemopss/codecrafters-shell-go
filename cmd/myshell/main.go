@@ -17,9 +17,13 @@ func main() {
 			panic(err)
 		}
 		cmd = strings.TrimSpace(cmd)
-		switch cmd {
+		mainCmd := strings.Split(cmd, " ")[0]
+		args := strings.Split(cmd, " ")[:]
+		switch mainCmd {
 		case "exit 0":
 			os.Exit(0)
+		case "echo":
+			fmt.Fprint(os.Stdout, args)
 		default:
 			fmt.Fprint(os.Stdout, cmd+": command not found\n")
 		}
