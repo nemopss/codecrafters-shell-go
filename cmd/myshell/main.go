@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"slices"
 	"strconv"
@@ -34,7 +35,7 @@ func main() {
 		case "type":
 			doType(params, valid, paths)
 		default:
-			fmt.Fprint(os.Stdout, cmd+": command not found\n")
+			doCmd(cmd, params)
 		}
 	}
 
@@ -53,6 +54,9 @@ func doEcho(params []string) {
 }
 
 func doType(params, valid, paths []string) {
+	if len(params) != 1 {
+		os.Exit(1)
+	}
 	if slices.Contains(valid, params[0]) {
 		fmt.Fprint(os.Stdout, params[0]+" is a shell builtin\n")
 	} else {
@@ -65,5 +69,16 @@ func doType(params, valid, paths []string) {
 		}
 		fmt.Fprint(os.Stdout, params[0]+": not found\n")
 
+	}
+}
+
+func doCmd(cmd string, params []string) {
+	command := exec.Command(cmd, params...)
+	command.Stderr = os.Stderr
+	command.Stdout = os.Stdout
+
+	err := command.Run()
+	if err != nil {
+		fmt.Fprint(os.Stdout, cmd+": command not found\n")
 	}
 }
