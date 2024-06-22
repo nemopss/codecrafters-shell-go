@@ -12,7 +12,7 @@ import (
 )
 
 func main() {
-	valid := []string{"type", "echo", "exit", "pwd"}
+	valid := []string{"type", "echo", "exit", "pwd", "cd"}
 	paths := strings.Split(os.Getenv("PATH"), ":")
 	for {
 		fmt.Fprint(os.Stdout, "$ ")
@@ -36,6 +36,8 @@ func main() {
 			doType(params, valid, paths)
 		case "pwd":
 			doPwd()
+		case "cd":
+			doCd(params)
 		default:
 			doCmd(cmd, params)
 		}
@@ -91,4 +93,14 @@ func doPwd() {
 		os.Exit(1)
 	}
 	fmt.Fprint(os.Stdout, wd+"\n")
+}
+
+func doCd(params []string) {
+	if len(params) != 1 {
+		os.Exit(1)
+	}
+	err := os.Chdir(params[0])
+	if err != nil {
+		fmt.Fprint(os.Stdout, "cd: "+params[0]+": No such file or directory\n")
+	}
 }
