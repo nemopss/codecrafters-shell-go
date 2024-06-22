@@ -99,6 +99,17 @@ func doCd(params []string) {
 	if len(params) != 1 {
 		os.Exit(1)
 	}
+	if params[0] == "~" {
+		homeDir, err := os.UserHomeDir()
+		if err != nil {
+			os.Exit(1)
+		}
+		err = os.Chdir(homeDir)
+		if err != nil {
+			os.Exit(1)
+		}
+		return
+	}
 	err := os.Chdir(params[0])
 	if err != nil {
 		fmt.Fprint(os.Stdout, "cd: "+params[0]+": No such file or directory\n")
