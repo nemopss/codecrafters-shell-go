@@ -12,7 +12,7 @@ import (
 )
 
 func main() {
-	valid := []string{"type", "echo", "exit"}
+	valid := []string{"type", "echo", "exit", "pwd"}
 	paths := strings.Split(os.Getenv("PATH"), ":")
 	for {
 		fmt.Fprint(os.Stdout, "$ ")
@@ -34,6 +34,8 @@ func main() {
 			doEcho(params)
 		case "type":
 			doType(params, valid, paths)
+		case "pwd":
+			doPwd()
 		default:
 			doCmd(cmd, params)
 		}
@@ -81,4 +83,12 @@ func doCmd(cmd string, params []string) {
 	if err != nil {
 		fmt.Fprint(os.Stdout, cmd+": command not found\n")
 	}
+}
+
+func doPwd() {
+	wd, err := os.Getwd()
+	if err != nil {
+		os.Exit(1)
+	}
+	fmt.Fprint(os.Stdout, wd+"\n")
 }
