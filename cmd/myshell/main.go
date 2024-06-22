@@ -3,8 +3,8 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"log"
 	"os"
+	"strings"
 )
 
 func main() {
@@ -12,11 +12,16 @@ func main() {
 		fmt.Fprint(os.Stdout, "$ ")
 
 		// Wait for user input
-		input, err := bufio.NewReader(os.Stdin).ReadString('\n')
+		cmd, err := bufio.NewReader(os.Stdin).ReadString('\n')
 		if err != nil {
-			log.Fatal(err)
+			panic(err)
 		}
-
-		fmt.Fprint(os.Stdout, input[:len(input)-1]+": command not found\n")
+		cmd = strings.TrimSpace(cmd)
+		switch cmd {
+		case "exit 0":
+			os.Exit(0)
+		default:
+			fmt.Fprint(os.Stdout, cmd+": command not found\n")
+		}
 	}
 }
